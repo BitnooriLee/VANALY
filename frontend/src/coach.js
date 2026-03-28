@@ -1,3 +1,5 @@
+import { lang, t } from "./i18n.js";
+
 // ── DOM refs ──────────────────────────────────────────────────────────────────
 const modal              = document.getElementById("coach-modal");
 const backdrop           = document.getElementById("coach-backdrop");
@@ -124,11 +126,11 @@ async function startSession(situation = null) {
     userId = await getOrCreateUserId();
     cachedUserId = userId;
   } catch {
-    addBubble("assistant", "잠깐 연결이 안 됐어요. 서버가 켜져 있는지 확인해줘요. 🌿");
-    chatMessages.hidden = false;
-    situationPicker.hidden = true;
-    return;
-  }
+      addBubble("assistant", t("errUserCreate"));
+      chatMessages.hidden = false;
+      situationPicker.hidden = true;
+      return;
+    }
 
   situationPicker.hidden = true;
   chatMessages.hidden    = false;
@@ -138,7 +140,7 @@ async function startSession(situation = null) {
     const res = await fetch("/coach/session", {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
-      body:    JSON.stringify({ user_id: userId, situation }),
+      body:    JSON.stringify({ user_id: userId, situation, lang }),
     });
 
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -154,7 +156,7 @@ async function startSession(situation = null) {
 
   } catch (err) {
     hideTyping();
-    addBubble("assistant", "잠깐 연결이 안 됐어요. 다시 시도해줘요. 🌿");
+    addBubble("assistant", t("errConnectSession"));
     console.error("[VANALY Coach]", err);
   }
 }
@@ -194,7 +196,7 @@ async function sendMessage() {
 
   } catch (err) {
     hideTyping();
-    addBubble("assistant", "잠깐 문제가 생겼어요. 다시 말해줘도 괜찮아요. 🌿");
+    addBubble("assistant", t("errReply"));
     console.error("[VANALY Coach]", err);
   } finally {
     isSending = false;

@@ -83,7 +83,7 @@
     <h1 class="text-xl font-black text-teal-700 tracking-tight">VANALY 🌿</h1>
     <span class="flex items-center gap-1.5 text-xs text-gray-400" aria-live="polite">
       <span id="health-dot" class="w-2 h-2 rounded-full bg-gray-300"></span>
-      <span id="health-label">확인 중</span>
+      <span id="health-label" data-i18n="healthChecking">확인 중</span>
     </span>
   </header>
 
@@ -96,14 +96,14 @@
       <!-- 환영 카드 -->
       <div class="bg-gradient-to-br from-teal-600 to-emerald-600
                   rounded-2xl px-5 py-4 mb-4 shadow-sm">
-        <p class="text-white font-semibold text-sm">반가워요! 오늘의 리듬을 함께 만들어봐요. ✨</p>
-        <p class="text-white/65 text-xs mt-1.5 leading-snug">
+        <p class="text-white font-semibold text-sm" data-i18n="welcomeTitle">반가워요! 오늘의 리듬을 함께 만들어봐요. ✨</p>
+        <p class="text-white/65 text-xs mt-1.5 leading-snug" data-i18n="welcomeSubtitle">
           지금 배고프신가요? 먼저 한 숨 쉬어봐요.
         </p>
       </div>
 
       <!-- 슬로건 -->
-      <p class="text-slate-400 text-xs leading-snug mb-3">
+      <p class="text-slate-400 text-xs leading-snug mb-3" data-i18n="slogan">
         당신의 리듬을 깨우는 시간, 늘 곁에 있는 퍼스널 가이드.
       </p>
 
@@ -123,8 +123,8 @@
                     hover:border-teal-400 hover:bg-teal-50/50"
              aria-label="갤러리에서 이미지 선택">
         <span class="text-2xl select-none">🥗</span>
-        <span class="text-slate-600 font-medium text-sm">식단 사진을 여기에 올려주세요</span>
-        <span class="text-slate-300 text-xs">JPEG · PNG · WebP · 최대 10MB</span>
+        <span class="text-slate-600 font-medium text-sm" data-i18n="uploadHint">식단 사진을 여기에 올려주세요</span>
+        <span class="text-slate-300 text-xs" data-i18n="uploadFormats">JPEG · PNG · WebP · 최대 10MB</span>
         <input id="gallery-input" type="file" accept="image/*" class="hidden" />
       </label>
 
@@ -137,7 +137,7 @@
                      focus-visible:outline-none focus-visible:ring-2
                      focus-visible:ring-brand-500 focus-visible:ring-offset-2"
               aria-label="카메라로 바로 촬영">
-        📷 카메라로 촬영하기
+        📷 <span data-i18n="cameraBtnText">카메라로 촬영하기</span>
       </button>
       <input id="camera-input" type="file" accept="image/*" capture="environment" class="hidden" />
 
@@ -145,7 +145,7 @@
 
     <!-- ── 2. 로딩 화면 ─────────────────────────────────────────── -->
     <section id="loading-view" hidden>
-      <p class="text-teal-700 font-semibold text-center mb-5 animate-fade-up">
+      <p class="text-teal-700 font-semibold text-center mb-5 animate-fade-up" data-i18n="analyzing">
         VANALY가 식단을 분석 중이에요... 🥗
       </p>
       <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-4">
@@ -175,17 +175,17 @@
         <img id="result-image" src="" alt="분석한 식단 사진"
              class="w-20 h-20 object-cover rounded-xl flex-shrink-0" />
         <div>
-          <p class="text-xs text-gray-400 mb-1">인식된 음식</p>
+          <p class="text-xs text-gray-400 mb-1" data-i18n="detectedFood">인식된 음식</p>
           <p id="food-items" class="text-slate-800 font-semibold text-sm leading-snug"></p>
           <p class="text-xs text-gray-300 mt-1">
-            AI 신뢰도 <span id="confidence"></span>
+            <span data-i18n="aiConfidence">AI 신뢰도</span> <span id="confidence"></span>
           </p>
         </div>
       </div>
 
       <!-- 코치의 한마디 -->
       <div class="bg-gradient-to-br from-teal-600 to-brand-700 rounded-2xl px-5 py-5 shadow-md">
-        <p class="text-teal-200 text-xs font-semibold uppercase tracking-widest mb-2">
+        <p class="text-teal-200 text-xs font-semibold uppercase tracking-widest mb-2" data-i18n="coachCardTitle">
           코치의 따뜻한 한마디
         </p>
         <p id="feedback-text" class="text-white font-medium text-base leading-relaxed"></p>
@@ -193,13 +193,13 @@
 
       <!-- 다음 식사 제안 -->
       <div class="bg-white rounded-2xl px-5 py-4 border border-slate-100 shadow-sm">
-        <p class="text-teal-600 text-xs font-semibold mb-1.5">💡 다음 식사 제안</p>
+        <p class="text-teal-600 text-xs font-semibold mb-1.5" data-i18n="nextMealTitle">💡 다음 식사 제안</p>
         <p id="next-meal-text" class="text-gray-700 text-sm leading-snug"></p>
       </div>
 
       <!-- 영양 성분 -->
       <div class="bg-white rounded-2xl px-5 py-4 border border-slate-100 shadow-sm">
-        <p class="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-3">
+        <p class="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-3" data-i18n="nutritionTitle">
           영양 성분
         </p>
         <div class="flex items-baseline gap-1.5 mb-4">
@@ -209,32 +209,32 @@
         <div class="grid grid-cols-4 gap-2 mb-3 text-center">
           <div class="bg-teal-50 rounded-xl py-2">
             <p class="text-teal-700 font-bold text-sm" id="carbs"></p>
-            <p class="text-gray-400 text-xs mt-0.5">탄수화물</p>
+            <p class="text-gray-400 text-xs mt-0.5" data-i18n="labelCarbs">탄수화물</p>
           </div>
           <div class="bg-teal-50 rounded-xl py-2">
             <p class="text-teal-700 font-bold text-sm" id="protein"></p>
-            <p class="text-gray-400 text-xs mt-0.5">단백질</p>
+            <p class="text-gray-400 text-xs mt-0.5" data-i18n="labelProtein">단백질</p>
           </div>
           <div class="bg-teal-50 rounded-xl py-2">
             <p class="text-teal-700 font-bold text-sm" id="fat"></p>
-            <p class="text-gray-400 text-xs mt-0.5">지방</p>
+            <p class="text-gray-400 text-xs mt-0.5" data-i18n="labelFat">지방</p>
           </div>
           <div class="bg-teal-50 rounded-xl py-2">
             <p class="text-teal-700 font-bold text-sm" id="fiber"></p>
-            <p class="text-gray-400 text-xs mt-0.5">식이섬유</p>
+            <p class="text-gray-400 text-xs mt-0.5" data-i18n="labelFiber">식이섬유</p>
           </div>
         </div>
         <div class="border-t border-slate-100 pt-3 space-y-1.5 text-sm">
           <div class="flex justify-between text-gray-500">
-            <span>나트륨</span>
+            <span data-i18n="labelSodium">나트륨</span>
             <span class="font-medium text-gray-700" id="sodium"></span>
           </div>
           <div class="flex justify-between text-gray-500">
-            <span>혈당 영향</span>
+            <span data-i18n="labelBloodSugar">혈당 영향</span>
             <span class="font-medium" id="blood-sugar"></span>
           </div>
           <div class="flex justify-between text-gray-500">
-            <span>에너지 피크 예상</span>
+            <span data-i18n="labelEnergyPeak">에너지 피크 예상</span>
             <span class="font-medium text-gray-700" id="energy-peak"></span>
           </div>
         </div>
@@ -248,7 +248,7 @@
                      transition-all duration-150
                      focus-visible:outline-none focus-visible:ring-2
                      focus-visible:ring-teal-500 focus-visible:ring-offset-2">
-        🔄 다시 분석하기
+        <span data-i18n="retryBtn">🔄 다시 분석하기</span>
       </button>
     </section>
 
@@ -271,7 +271,7 @@
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white/60"></span>
           <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
         </span>
-        🕊️ 평온 찾기
+        🕊️ <span data-i18n="sosBtnText">평온 찾기</span>
       </button>
     </div>
   </div>
@@ -303,8 +303,8 @@
       </div>
     </div>
 
-    <p class="text-white/90 text-xl font-light text-center tracking-wide">깊게 숨을 들이마시고</p>
-    <p class="text-white/55 text-base font-light text-center mt-2">천천히 내쉬어보세요</p>
+    <p class="text-white/90 text-xl font-light text-center tracking-wide" data-i18n="breatheIn">깊게 숨을 들이마시고</p>
+    <p class="text-white/55 text-base font-light text-center mt-2" data-i18n="breatheOut">천천히 내쉬어보세요</p>
 
     </div><!-- /inner flex wrapper -->
   </div>
@@ -334,27 +334,27 @@
       <div class="flex items-center justify-between px-5 py-3
                   border-b border-gray-100 flex-shrink-0">
         <div>
-          <h2 class="font-bold text-gray-800 text-base">평온 찾기 🕊️</h2>
-          <p class="text-xs text-gray-400">AI 코치가 함께해요</p>
+          <h2 class="font-bold text-gray-800 text-base" data-i18n="modalTitle">평온 찾기 🕊️</h2>
+          <p class="text-xs text-gray-400" data-i18n="modalSubtitle">AI 코치가 함께해요</p>
         </div>
         <button id="coach-close-btn"
                 class="w-8 h-8 flex items-center justify-center
                        rounded-full hover:bg-gray-100 text-gray-400
                        transition-colors focus-visible:outline-none
                        focus-visible:ring-2 focus-visible:ring-teal-400"
-                aria-label="모달 닫기">✕</button>
+                data-i18n-aria="closeModal" aria-label="모달 닫기">✕</button>
       </div>
 
       <!-- 위기 배너 -->
       <div id="crisis-banner" hidden
            class="mx-4 mt-3 bg-amber-50 border border-amber-200
                   rounded-2xl px-4 py-3 flex-shrink-0">
-        <p class="font-semibold text-amber-700 text-sm">💛 전문 도움이 필요하신가요?</p>
+          <p class="font-semibold text-amber-700 text-sm" data-i18n="crisisTitle">💛 전문 도움이 필요하신가요?</p>
         <a href="tel:1393"
            class="block text-amber-600 font-black text-2xl mt-1 tracking-wide">
           ☎ 1393
         </a>
-        <p class="text-xs text-amber-500 mt-0.5">정신건강 위기상담 · 24시간 · 무료 · 익명 가능</p>
+        <p class="text-xs text-amber-500 mt-0.5" data-i18n="crisisDesc">정신건강 위기상담 · 24시간 · 무료 · 익명 가능</p>
       </div>
 
       <!-- 채팅 영역 (스크롤) -->
@@ -362,7 +362,7 @@
 
         <!-- 상황 선택 -->
         <div id="situation-picker">
-          <p class="text-center text-gray-500 text-sm mb-5 mt-2">
+          <p class="text-center text-gray-500 text-sm mb-5 mt-2" data-i18n="situationQ">
             지금 어떤 마음인가요?
           </p>
           <div class="grid grid-cols-3 gap-3 mb-4">
@@ -374,7 +374,7 @@
                            focus-visible:outline-none focus-visible:ring-2
                            focus-visible:ring-orange-300">
               <span class="text-3xl">🍔</span>
-              <span class="text-xs font-semibold text-orange-700">폭식 충동</span>
+              <span class="text-xs font-semibold text-orange-700" data-i18n="situationBinge">폭식 충동</span>
             </button>
             <button data-situation="stress"
                     class="situation-btn flex flex-col items-center gap-1.5
@@ -384,7 +384,7 @@
                            focus-visible:outline-none focus-visible:ring-2
                            focus-visible:ring-blue-300">
               <span class="text-3xl">😮‍💨</span>
-              <span class="text-xs font-semibold text-blue-700">스트레스</span>
+              <span class="text-xs font-semibold text-blue-700" data-i18n="situationStress">스트레스</span>
             </button>
             <button data-situation="lonely"
                     class="situation-btn flex flex-col items-center gap-1.5
@@ -394,13 +394,13 @@
                            focus-visible:outline-none focus-visible:ring-2
                            focus-visible:ring-purple-300">
               <span class="text-3xl">🫂</span>
-              <span class="text-xs font-semibold text-purple-700">그냥 힘들어</span>
+              <span class="text-xs font-semibold text-purple-700" data-i18n="situationLonely">그냥 힘들어</span>
             </button>
           </div>
           <button id="skip-situation"
                   class="w-full text-xs text-gray-400 hover:text-gray-500
                          text-center py-2 transition-colors">
-            그냥 바로 시작할게요 →
+            <span data-i18n="skipBtn">그냥 바로 시작할게요 →</span>
           </button>
         </div>
 
@@ -422,7 +422,7 @@
       <div id="session-summary" hidden
            class="mx-4 mb-3 bg-teal-50 border border-teal-100
                   rounded-2xl px-4 py-3 flex-shrink-0">
-        <p class="text-xs text-teal-600 font-semibold mb-1">오늘의 대화 정리 🌿</p>
+        <p class="text-xs text-teal-600 font-semibold mb-1" data-i18n="summaryTitle">오늘의 대화 정리 🌿</p>
         <p id="summary-text" class="text-gray-700 text-sm leading-snug"></p>
       </div>
 
@@ -431,6 +431,7 @@
            class="border-t border-gray-100 flex-shrink-0">
         <div class="flex gap-2 px-4 py-3">
         <textarea id="chat-input"
+                  data-i18n-placeholder="chatPlaceholder"
                   placeholder="마음을 편하게 적어보세요..."
                   rows="1"
                   class="flex-1 resize-none rounded-xl border border-gray-200
@@ -447,7 +448,7 @@
                        focus-visible:ring-teal-500 focus-visible:ring-offset-2
                        disabled:opacity-40 disabled:cursor-not-allowed"
                 aria-label="전송">
-          전송
+          <span data-i18n="sendBtn">전송</span>
         </button>
         </div><!-- /inner flex wrapper -->
       </div>

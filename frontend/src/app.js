@@ -1,3 +1,8 @@
+import { lang, t, applyTranslations } from "./i18n.js";
+
+// 페이지 로드 즉시 번역 적용
+applyTranslations();
+
 // ── 상태 관리 ─────────────────────────────────────────────────────────────────
 
 const views = {
@@ -71,7 +76,11 @@ function renderResult(data, file) {
     `${Math.round(data.sodium_mg ?? 0).toLocaleString("ko-KR")}mg`;
 
   // 혈당 영향
-  const impactLabel = { low: "💚 낮음", medium: "🟡 보통", high: "🔴 높음" };
+  const impactLabel = {
+    low:    t("bloodSugarLow"),
+    medium: t("bloodSugarMedium"),
+    high:   t("bloodSugarHigh"),
+  };
   const impactEl = document.getElementById("blood-sugar");
   impactEl.textContent = impactLabel[data.blood_sugar_impact] ?? data.blood_sugar_impact;
   impactEl.className =
@@ -81,7 +90,7 @@ function renderResult(data, file) {
 
   // 에너지 피크
   document.getElementById("energy-peak").textContent =
-    `약 ${data.energy_peak_minutes ?? 45}분 후`;
+    t("energyPeakFmt", { n: data.energy_peak_minutes ?? 45 });
 }
 
 // ── 이미지 분석 메인 흐름 ─────────────────────────────────────────────────────
@@ -97,6 +106,7 @@ async function analyzeFile(file) {
     const formData = new FormData();
     formData.append("user_id", String(userId));
     formData.append("file", file);
+    formData.append("lang", lang);
 
     const res = await fetch("/meals/analyze", {
       method: "POST",
@@ -106,8 +116,7 @@ async function analyzeFile(file) {
     const body = await res.json();
 
     if (!res.ok) {
-      // 422: 음식 아닌 사진 or 흐린 이미지 → 친절한 안내
-      const detail = body?.detail ?? "분석 중 문제가 생겼어요. 다시 시도해줘요.";
+      const detail = body?.detail ?? t("errGeneric");
       showError(detail);
       return;
     }
@@ -117,7 +126,7 @@ async function analyzeFile(file) {
 
   } catch (err) {
     console.error("[VANALY] analyze error:", err);
-    showError("서버와 연결할 수 없어요. 잠시 후 다시 시도해줘요.");
+    showError(t("errOffline"));
   }
 }
 
@@ -175,14 +184,14 @@ async function checkHealth() {
   try {
     const res = await fetch("/health");
     if (res.ok) {
-      dot.className   = "w-2 h-2 rounded-full bg-green-400";
-      label.textContent = "연결됨";
+      dot.className     = "w-2 h-2 rounded-full bg-green-400";
+      label.textContent = t("healthConnected");
     } else {
       throw new Error();
     }
   } catch {
-    dot.className   = "w-2 h-2 rounded-full bg-red-400";
-    label.textContent = "오프라인";
+    dot.className     = "w-2 h-2 rounded-full bg-red-400";
+    label.textContent = t("healthOffline");
   }
 }
 

@@ -19,6 +19,7 @@ router = APIRouter(prefix="/coach", tags=["Coach"])
 class SessionCreate(BaseModel):
     user_id: int
     situation: str | None = None   # "binge" | "stress" | "lonely" | None
+    lang: str = "ko"               # "ko" | "en"
 
 
 class MessageSend(BaseModel):
@@ -95,7 +96,7 @@ async def create_session(body: SessionCreate) -> SessionResponse:
             raise HTTPException(status_code=404, detail="사용자를 찾을 수 없어요.")
         meal_context = _get_today_meals(conn, body.user_id)
 
-    opening, is_crisis = await get_opening_message(body.situation, meal_context)
+    opening, is_crisis = await get_opening_message(body.situation, meal_context, body.lang)
 
     now = datetime.now().isoformat()
     init_messages = [{"role": "assistant", "content": opening, "timestamp": now}]
@@ -103,12 +104,13 @@ async def create_session(body: SessionCreate) -> SessionResponse:
     with db() as conn:
         cursor = conn.execute(
             """
-            INSERT INTO coach_sessions (user_id, situation, messages, meal_context)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO coach_sessions (user_id, situation, lang, messages, meal_context)
+            VALUES (?, ?, ?, ?, ?)
             """,
             (
                 body.user_id,
                 body.situation,
+                body.lang,
                 json.dumps(init_messages, ensure_ascii=False),
                 json.dumps(meal_context, ensure_ascii=False),
             ),
@@ -138,6 +140,7 @@ async def send_message(
     messages     = json.loads(session["messages"])
     meal_context = json.loads(session["meal_context"] or "[]")
     situation    = session.get("situation")
+    lang         = session.get("lang") or "ko"
 
     messages.append({
         "role": "user",
@@ -145,7 +148,7 @@ async def send_message(
         "timestamp": datetime.now().isoformat(),
     })
 
-    reply, is_crisis = await get_coach_reply(messages, meal_context, situation)
+    reply, is_crisis = await get_coach_reply(messages, meal_context, situation, lang)
 
     messages.append({
         "role": "assistant",
@@ -178,8 +181,9 @@ async def close_session(session_id: int, user_id: int) -> CloseResponse:
     messages     = json.loads(session["messages"])
     meal_context = json.loads(session["meal_context"] or "[]")
     situation    = session.get("situation")
+    lang         = session.get("lang") or "ko"
 
-    summary = await get_session_summary(messages, meal_context, situation)
+    summary = await get_session_summary(messages, meal_context, situation, lang)
 
     with db() as conn:
         conn.execute(

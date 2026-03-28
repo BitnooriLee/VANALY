@@ -19,7 +19,8 @@ def _get_client() -> AsyncOpenAI:
 
 # ── 상황별 즉각 공감 오프너 ────────────────────────────────────────────────────
 # 이모지를 눌렀을 때 사용자가 타이핑 없이도 AI가 먼저 공감 대화를 시작
-SITUATION_OPENERS: dict[str, str] = {
+
+_OPENERS_KO: dict[str, str] = {
     "binge": (
         "아, 갑자기 많이 먹고 싶은 충동이 밀려오셨군요. "
         "몸이 무언가를 강하게 원하고 있는 것 같아요. "
@@ -34,6 +35,24 @@ SITUATION_OPENERS: dict[str, str] = {
         "지금 이 순간 저를 찾아주셔서 정말 고마워요. "
         "혼자가 아니에요. "
         "어떤 마음인지 천천히, 편하게 들려주셔도 괜찮아요. 🤍"
+    ),
+}
+
+_OPENERS_EN: dict[str, str] = {
+    "binge": (
+        "Hey, sounds like a strong urge to eat just hit you. "
+        "Your body is really craving something right now. "
+        "Want to gently explore together where this feeling is coming from? 🌿"
+    ),
+    "stress": (
+        "Ah, it sounds like stress has been really weighing on you — you've been holding a lot. "
+        "I'm right here with you. "
+        "Would you feel comfortable sharing what's been going on today?"
+    ),
+    "lonely": (
+        "I'm really glad you reached out in this moment. "
+        "You're not alone. "
+        "Take your time — there's no rush, just share whatever feels right. 🤍"
     ),
 }
 
@@ -81,12 +100,23 @@ _MISSION: dict[str | None, str] = {
 
 # ── 시스템 프롬프트 — 오늘 식단 데이터 + 상황 미션 주입 ──────────────────────
 
-def build_system_prompt(meal_context: list[dict], situation: str | None = None) -> str:
+_LANG_INSTRUCTION: dict[str, str] = {
+    "ko": "반드시 한국어로만 응답하세요. 영어를 절대 사용하지 마세요.",
+    "en": "Always respond in English only. Do not use any Korean.",
+}
+
+
+def build_system_prompt(
+    meal_context: list[dict],
+    situation: str | None = None,
+    lang: str = "ko",
+) -> str:
     """
-    오늘의 식단 기록과 상황별 코칭 미션을 AI 컨텍스트에 주입한다.
+    오늘의 식단 기록, 상황별 코칭 미션, 언어 지시를 AI 컨텍스트에 주입한다.
     - binge: 폭식 충동 개입 — 고칼로리 권유 절대 금지, 리디렉션 필수
     - stress / lonely: 감정 지지 중심
     - None: 일반 식단 코칭
+    - lang: "ko" | "en"
     """
     if meal_context:
         lines = []
@@ -111,9 +141,14 @@ def build_system_prompt(meal_context: list[dict], situation: str | None = None) 
 
     # situation이 _MISSION에 없으면 None(일반) 미션 사용
     mission = _MISSION.get(situation, _MISSION[None])
+    lang_instruction = _LANG_INSTRUCTION.get(lang, _LANG_INSTRUCTION["ko"])
 
     return f"""\
-당신은 VANALY의 따뜻한 한국어 감정·영양 코치입니다.
+당신은 VANALY의 따뜻한 감정·영양 코치입니다.
+
+[언어 규칙 — 최우선]
+{lang_instruction}
+
 
 {mission}
 
@@ -149,28 +184,36 @@ def build_system_prompt(meal_context: list[dict], situation: str | None = None) 
 async def get_opening_message(
     situation: str | None,
     meal_context: list[dict],
+    lang: str = "ko",
 ) -> tuple[str, bool]:
     """이모지 선택 시 즉각 반환(preset) 또는 AI 생성 오프너."""
-    if situation and situation in SITUATION_OPENERS:
-        return SITUATION_OPENERS[situation], False
+    openers = _OPENERS_EN if lang == "en" else _OPENERS_KO
+    if situation and situation in openers:
+        return openers[situation], False
 
     # 상황 미선택 → AI가 오늘 식단을 참고해 맞춤 오프닝 생성
     client = _get_client()
+    opening_instruction = (
+        "Start with a warm one-sentence greeting in English, referencing today's meal data. "
+        "Do not include crisis hotline numbers."
+        if lang == "en" else
+        "[세션 시작] 오늘 식단을 참고해 따뜻한 한 문장 오프닝을 만들어주세요. "
+        "1393 등 위기 번호는 포함하지 마세요."
+    )
+    fallback = (
+        "I'm really glad you're here. Feel free to share whatever's on your mind. 🌿"
+        if lang == "en" else
+        "지금 이 순간 찾아주셔서 고마워요. 어떤 마음인지 편하게 이야기해줘요. 🌿"
+    )
     res = await client.chat.completions.create(
         model="gpt-4o-mini",
         max_tokens=120,
         messages=[
-            {"role": "system", "content": build_system_prompt(meal_context)},
-            {
-                "role": "user",
-                "content": (
-                    "[세션 시작] 오늘 식단을 참고해 따뜻한 한 문장 오프닝을 만들어주세요. "
-                    "1393 등 위기 번호는 포함하지 마세요."
-                ),
-            },
+            {"role": "system", "content": build_system_prompt(meal_context, lang=lang)},
+            {"role": "user", "content": opening_instruction},
         ],
     )
-    msg = res.choices[0].message.content or "지금 이 순간 찾아주셔서 고마워요. 어떤 마음인지 편하게 이야기해줘요. 🌿"
+    msg = res.choices[0].message.content or fallback
     return msg, False
 
 
@@ -178,10 +221,11 @@ async def get_coach_reply(
     messages: list[dict],
     meal_context: list[dict],
     situation: str | None = None,
+    lang: str = "ko",
 ) -> tuple[str, bool]:
     """사용자 메시지에 대한 코치 응답 생성. (reply_text, is_crisis) 반환."""
     client  = _get_client()
-    system  = build_system_prompt(meal_context, situation)
+    system  = build_system_prompt(meal_context, situation, lang)
 
     chat = [{"role": "system", "content": system}]
     for m in messages:
@@ -203,10 +247,11 @@ async def get_session_summary(
     messages: list[dict],
     meal_context: list[dict],
     situation: str | None = None,
+    lang: str = "ko",
 ) -> str:
     """세션 종료 시 따뜻한 요약 + 다음 단계 제안."""
     client = _get_client()
-    system = build_system_prompt(meal_context, situation)
+    system = build_system_prompt(meal_context, situation, lang)
 
     chat = [{"role": "system", "content": system}]
     for m in messages:

@@ -95,10 +95,10 @@ def _build_user_prompt(
     )
 
 
-_COACHING_SYSTEM = """\
+_COACHING_SYSTEM_KO = """\
 You are VANALY, a warm and non-judgmental Korean health coach.
 
-You receive a JSON nutritional analysis and user context, then write a coaching message in Korean.
+You receive a JSON nutritional analysis and user context, then write a coaching message in KOREAN.
 
 Follow the 3-Beat pattern strictly:
 1. 공감(Empathy): Acknowledge the current meal without judgment (1 sentence)
@@ -107,12 +107,37 @@ Follow the 3-Beat pattern strictly:
 
 Return JSON only:
 {
-  "feedback_text": "<3-beat coaching message, 3–5 sentences total>",
-  "next_meal_suggestion": "<specific food idea for the next meal, 1 sentence>"
+  "feedback_text": "<3-beat coaching message in Korean, 3–5 sentences total>",
+  "next_meal_suggestion": "<specific food idea for the next meal in Korean, 1 sentence>"
 }
 
 Rules:
+- RESPOND IN KOREAN ONLY
 - NEVER use: 실패, 과식, 나쁜, 안 됩니다, 해야 합니다
+- ALWAYS empathize first
+- Keep total under 120 characters per field
+- Sound like a caring friend, not a clinical report
+"""
+
+_COACHING_SYSTEM_EN = """\
+You are VANALY, a warm and non-judgmental health coach.
+
+You receive a JSON nutritional analysis and user context, then write a coaching message in ENGLISH.
+
+Follow the 3-Beat pattern strictly:
+1. Empathy: Acknowledge the current meal without judgment (1 sentence)
+2. Insight: One nutritional or blood-sugar insight relevant to the user's goals (1–2 sentences)
+3. Invitation: A gentle, specific next-meal suggestion (1 sentence)
+
+Return JSON only:
+{
+  "feedback_text": "<3-beat coaching message in English, 3–5 sentences total>",
+  "next_meal_suggestion": "<specific food idea for the next meal in English, 1 sentence>"
+}
+
+Rules:
+- RESPOND IN ENGLISH ONLY
+- NEVER use words like: failed, overate, bad, you must, you should not
 - ALWAYS empathize first
 - Keep total under 120 characters per field
 - Sound like a caring friend, not a clinical report
@@ -126,6 +151,7 @@ async def analyze_meal_image(
     user_goals: dict,
     calories_eaten_today: int,
     previous_foods: list[str],
+    lang: str = "ko",
 ) -> dict:
     """
     Returns either:
@@ -173,17 +199,18 @@ async def analyze_meal_image(
         return nutrition
 
     # ── Step 2: 코칭 피드백 생성 (텍스트 전용 — 저렴) ────────────────────────
+    coaching_system = _COACHING_SYSTEM_EN if lang == "en" else _COACHING_SYSTEM_KO
     coaching_response = await client.chat.completions.create(
         model="gpt-4o-mini",  # 피드백은 저렴한 모델로 충분
         response_format={"type": "json_object"},
         max_tokens=256,
         messages=[
-            {"role": "system", "content": _COACHING_SYSTEM},
+            {"role": "system", "content": coaching_system},
             {
                 "role": "user",
                 "content": (
-                    f"영양 분석 결과: {json.dumps(nutrition, ensure_ascii=False)}\n"
-                    f"사용자 컨텍스트: {user_prompt}"
+                    f"Nutrition analysis: {json.dumps(nutrition, ensure_ascii=False)}\n"
+                    f"User context: {user_prompt}"
                 ),
             },
         ],

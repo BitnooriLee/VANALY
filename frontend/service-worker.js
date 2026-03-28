@@ -1,4 +1,4 @@
-const CACHE_NAME = "vanaly-v5"; // 버전 올려서 구 캐시 강제 삭제
+const CACHE_NAME = "vanaly-v6"; // 버전 올려서 구 캐시 강제 삭제
 const STATIC_ASSETS = [
   "/manifest.json",
   "/icons/icon-192.png",

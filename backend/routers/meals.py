@@ -94,6 +94,7 @@ def _row_to_response(row: dict) -> MealAnalysisResponse:
 async def analyze_meal(
     user_id: int = Form(..., description="사용자 ID"),
     file: UploadFile = File(..., description="식단 사진 (JPEG/PNG/WebP/HEIC)"),
+    lang: str = Form("ko", description="응답 언어 (ko | en)"),
 ) -> MealAnalysisResponse:
     # ── 파일 유효성 검사 ──────────────────────────────────────────────────────
     if file.content_type not in _ALLOWED_MIME:
@@ -121,6 +122,7 @@ async def analyze_meal(
         user_goals=goals,
         calories_eaten_today=calories_today,
         previous_foods=foods_today,
+        lang=lang,
     )
 
     # 음식 아닌 사진 / 흐린 이미지 에러 처리

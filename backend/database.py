@@ -88,3 +88,9 @@ def init_db() -> None:
             conn.execute("ALTER TABLE coach_sessions ADD COLUMN situation TEXT")
         except Exception:
             pass  # 이미 컬럼이 존재하면 무시
+
+        # 마이그레이션: lang 컬럼 추가
+        try:
+            conn.execute("ALTER TABLE coach_sessions ADD COLUMN lang TEXT NOT NULL DEFAULT 'ko'")
+        except Exception:
+            pass
