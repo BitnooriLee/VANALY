@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Empower Your Rhythm. Guided Every Step by Your Personal Coach." />
+  <meta name="theme-color" content="#0f766e" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="VANALY" />
+  <meta property="og:description" content="Empower Your Rhythm. Guided Every Step by Your Personal Coach." />
+  <meta property="og:type" content="website" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="VANALY" />
+  <meta name="twitter:description" content="Empower Your Rhythm. Guided Every Step by Your Personal Coach." />
+
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50:'#f0fdf4', 100:'#dcfce7', 200:'#bbf7d0',
+                     500:'#22c55e', 600:'#16a34a', 700:'#15803d', 800:'#166534' },
+          },
+          keyframes: {
+            shimmer: {
+              '0%':   { backgroundPosition: '-400% 0' },
+              '100%': { backgroundPosition:  '400% 0' },
+            },
+            'fade-up': {
+              from: { opacity:'0', transform:'translateY(12px)' },
+              to:   { opacity:'1', transform:'translateY(0)' },
+            },
+            breathe: {
+              '0%, 100%': { transform:'scale(1)',    opacity:'0.5' },
+              '50%':      { transform:'scale(1.4)',  opacity:'1'   },
+            },
+            'slide-up': {
+              from: { transform:'translateY(100%)' },
+              to:   { transform:'translateY(0)' },
+            },
+          },
+          animation: {
+            shimmer:    'shimmer 1.6s linear infinite',
+            'fade-up':  'fade-up 0.4s ease both',
+            breathe:    'breathe 3s ease-in-out',
+            'breathe-d1':'breathe 3s 0.2s ease-in-out',
+            'breathe-d2':'breathe 3s 0.4s ease-in-out',
+            'slide-up': 'slide-up 0.45s cubic-bezier(0.32,0.72,0,1) both',
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    .skeleton {
+      background: linear-gradient(90deg, #e2e8f0 25%, #cbd5e1 50%, #e2e8f0 75%);
+      background-size: 400% 100%;
+      animation: shimmer 1.6s linear infinite;
+      border-radius: 0.75rem;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; }
+    }
+    #upload-area.dragover { border-color: #0f766e; background-color: #f0fdfa; }
+    /* 타이핑 인디케이터 딜레이 */
+    .dot-1 { animation-delay: 0ms; }
+    .dot-2 { animation-delay: 150ms; }
+    .dot-3 { animation-delay: 300ms; }
+  </style>
+  <title>VANALY — Empower Your Rhythm</title>
+</head>
+
+<body class="bg-slate-50 min-h-screen flex flex-col font-sans">
+
+  <!-- 헤더 -->
+  <header class="flex items-center justify-between px-5 pt-5 pb-3">
+    <h1 class="text-xl font-black text-teal-700 tracking-tight">VANALY 🌿</h1>
+    <span class="flex items-center gap-1.5 text-xs text-gray-400" aria-live="polite">
+      <span id="health-dot" class="w-2 h-2 rounded-full bg-gray-300"></span>
+      <span id="health-label">확인 중</span>
+    </span>
+  </header>
+
+  <!-- pb-28: 하단 플로팅 버튼에 가려지지 않도록 여백 확보 -->
+  <main class="flex-1 flex flex-col px-5 pb-28 gap-4 max-w-md w-full mx-auto">
+
+    <!-- ── 1. 업로드 화면 ─────────────────────────────────────────── -->
+    <section id="upload-view">
+
+      <!-- 환영 카드 -->
+      <div class="bg-gradient-to-br from-teal-600 to-emerald-600
+                  rounded-2xl px-5 py-4 mb-4 shadow-sm">
+        <p class="text-white font-semibold text-sm">반가워요! 오늘의 리듬을 함께 만들어봐요. ✨</p>
+        <p class="text-white/65 text-xs mt-1.5 leading-snug">
+          지금 배고프신가요? 먼저 한 숨 쉬어봐요.
+        </p>
+      </div>
+
+      <!-- 슬로건 -->
+      <p class="text-slate-400 text-xs leading-snug mb-3">
+        당신의 리듬을 깨우는 시간, 늘 곁에 있는 퍼스널 가이드.
+      </p>
+
+      <!-- 에러 메시지 -->
+      <div id="error-msg" hidden
+           class="mb-3 bg-red-50 border border-red-200 text-red-600
+                  rounded-xl px-4 py-3 text-sm font-medium text-center">
+      </div>
+
+      <!-- 드래그&드롭 / 클릭 업로드 존 (미니멀) -->
+      <label id="upload-area"
+             class="flex flex-col items-center justify-center gap-2
+                    border border-dashed border-slate-200
+                    rounded-2xl bg-white/80 cursor-pointer
+                    py-6 px-4 mb-3 text-center
+                    transition-colors duration-150
+                    hover:border-teal-400 hover:bg-teal-50/50"
+             aria-label="갤러리에서 이미지 선택">
+        <span class="text-2xl select-none">🥗</span>
+        <span class="text-slate-600 font-medium text-sm">식단 사진을 여기에 올려주세요</span>
+        <span class="text-slate-300 text-xs">JPEG · PNG · WebP · 최대 10MB</span>
+        <input id="gallery-input" type="file" accept="image/*" class="hidden" />
+      </label>
+
+      <!-- 카메라 버튼 -->
+      <button id="camera-btn"
+              class="w-full flex items-center justify-center gap-2
+                     bg-brand-600 hover:bg-brand-700 active:scale-[.98]
+                     text-white font-semibold py-3 rounded-xl text-sm
+                     transition-all duration-150
+                     focus-visible:outline-none focus-visible:ring-2
+                     focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+              aria-label="카메라로 바로 촬영">
+        📷 카메라로 촬영하기
+      </button>
+      <input id="camera-input" type="file" accept="image/*" capture="environment" class="hidden" />
+
+    </section>
+
+    <!-- ── 2. 로딩 화면 ─────────────────────────────────────────── -->
+    <section id="loading-view" hidden>
+      <p class="text-teal-700 font-semibold text-center mb-5 animate-fade-up">
+        VANALY가 식단을 분석 중이에요... 🥗
+      </p>
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 space-y-4">
+        <div class="skeleton h-5 w-3/4"></div>
+        <div class="skeleton h-4 w-full"></div>
+        <div class="skeleton h-4 w-5/6"></div>
+        <hr class="border-slate-100" />
+        <div class="grid grid-cols-3 gap-3">
+          <div class="skeleton h-12 rounded-xl"></div>
+          <div class="skeleton h-12 rounded-xl"></div>
+          <div class="skeleton h-12 rounded-xl"></div>
+        </div>
+        <div class="grid grid-cols-3 gap-3">
+          <div class="skeleton h-12 rounded-xl"></div>
+          <div class="skeleton h-12 rounded-xl"></div>
+          <div class="skeleton h-12 rounded-xl"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 3. 결과 화면 ─────────────────────────────────────────── -->
+    <section id="result-view" hidden class="space-y-4 animate-fade-up">
+
+      <!-- 이미지 + 음식명 -->
+      <div class="flex items-center gap-3 bg-white rounded-2xl p-4
+                  border border-slate-100 shadow-sm">
+        <img id="result-image" src="" alt="분석한 식단 사진"
+             class="w-20 h-20 object-cover rounded-xl flex-shrink-0" />
+        <div>
+          <p class="text-xs text-gray-400 mb-1">인식된 음식</p>
+          <p id="food-items" class="text-slate-800 font-semibold text-sm leading-snug"></p>
+          <p class="text-xs text-gray-300 mt-1">
+            AI 신뢰도 <span id="confidence"></span>
+          </p>
+        </div>
+      </div>
+
+      <!-- 코치의 한마디 -->
+      <div class="bg-gradient-to-br from-teal-600 to-brand-700 rounded-2xl px-5 py-5 shadow-md">
+        <p class="text-teal-200 text-xs font-semibold uppercase tracking-widest mb-2">
+          코치의 따뜻한 한마디
+        </p>
+        <p id="feedback-text" class="text-white font-medium text-base leading-relaxed"></p>
+      </div>
+
+      <!-- 다음 식사 제안 -->
+      <div class="bg-white rounded-2xl px-5 py-4 border border-slate-100 shadow-sm">
+        <p class="text-teal-600 text-xs font-semibold mb-1.5">💡 다음 식사 제안</p>
+        <p id="next-meal-text" class="text-gray-700 text-sm leading-snug"></p>
+      </div>
+
+      <!-- 영양 성분 -->
+      <div class="bg-white rounded-2xl px-5 py-4 border border-slate-100 shadow-sm">
+        <p class="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-3">
+          영양 성분
+        </p>
+        <div class="flex items-baseline gap-1.5 mb-4">
+          <span class="text-3xl font-black text-teal-700" id="calories"></span>
+          <span class="text-gray-400 text-sm">kcal</span>
+        </div>
+        <div class="grid grid-cols-4 gap-2 mb-3 text-center">
+          <div class="bg-teal-50 rounded-xl py-2">
+            <p class="text-teal-700 font-bold text-sm" id="carbs"></p>
+            <p class="text-gray-400 text-xs mt-0.5">탄수화물</p>
+          </div>
+          <div class="bg-teal-50 rounded-xl py-2">
+            <p class="text-teal-700 font-bold text-sm" id="protein"></p>
+            <p class="text-gray-400 text-xs mt-0.5">단백질</p>
+          </div>
+          <div class="bg-teal-50 rounded-xl py-2">
+            <p class="text-teal-700 font-bold text-sm" id="fat"></p>
+            <p class="text-gray-400 text-xs mt-0.5">지방</p>
+          </div>
+          <div class="bg-teal-50 rounded-xl py-2">
+            <p class="text-teal-700 font-bold text-sm" id="fiber"></p>
+            <p class="text-gray-400 text-xs mt-0.5">식이섬유</p>
+          </div>
+        </div>
+        <div class="border-t border-slate-100 pt-3 space-y-1.5 text-sm">
+          <div class="flex justify-between text-gray-500">
+            <span>나트륨</span>
+            <span class="font-medium text-gray-700" id="sodium"></span>
+          </div>
+          <div class="flex justify-between text-gray-500">
+            <span>혈당 영향</span>
+            <span class="font-medium" id="blood-sugar"></span>
+          </div>
+          <div class="flex justify-between text-gray-500">
+            <span>에너지 피크 예상</span>
+            <span class="font-medium text-gray-700" id="energy-peak"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 다시 분석하기 -->
+      <button id="retry-btn"
+              class="w-full border-2 border-slate-200 text-slate-600
+                     font-semibold py-3.5 rounded-xl
+                     hover:bg-slate-100 active:scale-[.98]
+                     transition-all duration-150
+                     focus-visible:outline-none focus-visible:ring-2
+                     focus-visible:ring-teal-500 focus-visible:ring-offset-2">
+        🔄 다시 분석하기
+      </button>
+    </section>
+
+  </main>
+
+  <!-- ── 플로팅 '평온 찾기' 버튼 ────────────────────────────────────────────── -->
+  <div class="fixed bottom-0 inset-x-0 z-30 pointer-events-none">
+    <div class="max-w-md mx-auto px-5 pb-6">
+      <button id="sos-btn"
+              class="pointer-events-auto w-full flex items-center justify-center gap-3
+                     bg-gradient-to-r from-teal-500 to-emerald-600
+                     hover:from-teal-600 hover:to-emerald-700
+                     active:scale-[.98] text-white font-semibold py-4
+                     rounded-2xl shadow-lg shadow-teal-500/30
+                     transition-all duration-200
+                     focus-visible:outline-none focus-visible:ring-2
+                     focus-visible:ring-teal-400 focus-visible:ring-offset-2"
+              aria-label="평온 찾기 — 코치와 연결">
+        <span class="relative flex h-2 w-2 flex-shrink-0">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white/60"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+        </span>
+        🕊️ 평온 찾기
+      </button>
+    </div>
+  </div>
+
+  <!-- ── 브리딩 오버레이 (z-[70]: 모달보다 위) ─────────────────────────────── -->
+  <!--
+    outer: hidden 속성만. flex 클래스 없음 → Tailwind .flex가 hidden을 덮어쓰는 문제 방지
+    inner: 실제 flex 레이아웃
+  -->
+  <div id="breathing-overlay" hidden
+       class="fixed inset-0 z-[70] bg-slate-900/85 backdrop-blur-md select-none">
+    <div class="flex flex-col items-center justify-center w-full h-full">
+
+    <!-- 동심원 영역 -->
+    <div class="relative w-56 h-56 flex items-center justify-center mb-10">
+      <!-- 바깥 고리 -->
+      <div id="ring-outer"
+           class="absolute inset-0 rounded-full bg-teal-400/15"></div>
+      <!-- 중간 고리 -->
+      <div id="ring-mid"
+           class="absolute w-40 h-40 rounded-full bg-teal-400/25"></div>
+      <!-- 안쪽 고리 -->
+      <div id="ring-inner"
+           class="absolute w-28 h-28 rounded-full bg-teal-400/40"></div>
+      <!-- 카운트다운 원 -->
+      <div class="relative w-16 h-16 rounded-full bg-teal-400/70
+                  flex items-center justify-center">
+        <span id="breathing-count" class="text-white font-black text-3xl leading-none">3</span>
+      </div>
+    </div>
+
+    <p class="text-white/90 text-xl font-light text-center tracking-wide">깊게 숨을 들이마시고</p>
+    <p class="text-white/55 text-base font-light text-center mt-2">천천히 내쉬어보세요</p>
+
+    </div><!-- /inner flex wrapper -->
+  </div>
+
+  <!-- ── 평온 찾기 코칭 모달 ────────────────────────────────────────────────── -->
+  <!--
+    백드롭(z-40)과 시트(z-50) 완전 분리 → X 버튼 클릭이 백드롭에 막히지 않음
+  -->
+  <div id="coach-modal" hidden>
+
+    <!-- 백드롭 -->
+    <div id="coach-backdrop"
+         class="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm cursor-pointer">
+    </div>
+
+    <!-- 바텀 시트 (슬라이드업 애니메이션은 JS에서 클래스 토글) -->
+    <div id="coach-sheet"
+         class="fixed bottom-0 inset-x-0 z-50 mx-auto w-full max-w-md
+                bg-white rounded-t-3xl flex flex-col shadow-2xl h-[75vh]">
+
+      <!-- 드래그 핸들 -->
+      <div class="flex justify-center pt-3 pb-1 flex-shrink-0">
+        <div class="w-10 h-1 rounded-full bg-gray-200"></div>
+      </div>
+
+      <!-- 헤더 (고정) -->
+      <div class="flex items-center justify-between px-5 py-3
+                  border-b border-gray-100 flex-shrink-0">
+        <div>
+          <h2 class="font-bold text-gray-800 text-base">평온 찾기 🕊️</h2>
+          <p class="text-xs text-gray-400">AI 코치가 함께해요</p>
+        </div>
+        <button id="coach-close-btn"
+                class="w-8 h-8 flex items-center justify-center
+                       rounded-full hover:bg-gray-100 text-gray-400
+                       transition-colors focus-visible:outline-none
+                       focus-visible:ring-2 focus-visible:ring-teal-400"
+                aria-label="모달 닫기">✕</button>
+      </div>
+
+      <!-- 위기 배너 -->
+      <div id="crisis-banner" hidden
+           class="mx-4 mt-3 bg-amber-50 border border-amber-200
+                  rounded-2xl px-4 py-3 flex-shrink-0">
+        <p class="font-semibold text-amber-700 text-sm">💛 전문 도움이 필요하신가요?</p>
+        <a href="tel:1393"
+           class="block text-amber-600 font-black text-2xl mt-1 tracking-wide">
+          ☎ 1393
+        </a>
+        <p class="text-xs text-amber-500 mt-0.5">정신건강 위기상담 · 24시간 · 무료 · 익명 가능</p>
+      </div>
+
+      <!-- 채팅 영역 (스크롤) -->
+      <div id="chat-area" class="flex-1 overflow-y-auto px-4 py-3">
+
+        <!-- 상황 선택 -->
+        <div id="situation-picker">
+          <p class="text-center text-gray-500 text-sm mb-5 mt-2">
+            지금 어떤 마음인가요?
+          </p>
+          <div class="grid grid-cols-3 gap-3 mb-4">
+            <button data-situation="binge"
+                    class="situation-btn flex flex-col items-center gap-1.5
+                           bg-orange-50 hover:bg-orange-100
+                           border border-orange-100 rounded-2xl py-4
+                           active:scale-95 transition-all duration-150
+                           focus-visible:outline-none focus-visible:ring-2
+                           focus-visible:ring-orange-300">
+              <span class="text-3xl">🍔</span>
+              <span class="text-xs font-semibold text-orange-700">폭식 충동</span>
+            </button>
+            <button data-situation="stress"
+                    class="situation-btn flex flex-col items-center gap-1.5
+                           bg-blue-50 hover:bg-blue-100
+                           border border-blue-100 rounded-2xl py-4
+                           active:scale-95 transition-all duration-150
+                           focus-visible:outline-none focus-visible:ring-2
+                           focus-visible:ring-blue-300">
+              <span class="text-3xl">😮‍💨</span>
+              <span class="text-xs font-semibold text-blue-700">스트레스</span>
+            </button>
+            <button data-situation="lonely"
+                    class="situation-btn flex flex-col items-center gap-1.5
+                           bg-purple-50 hover:bg-purple-100
+                           border border-purple-100 rounded-2xl py-4
+                           active:scale-95 transition-all duration-150
+                           focus-visible:outline-none focus-visible:ring-2
+                           focus-visible:ring-purple-300">
+              <span class="text-3xl">🫂</span>
+              <span class="text-xs font-semibold text-purple-700">그냥 힘들어</span>
+            </button>
+          </div>
+          <button id="skip-situation"
+                  class="w-full text-xs text-gray-400 hover:text-gray-500
+                         text-center py-2 transition-colors">
+            그냥 바로 시작할게요 →
+          </button>
+        </div>
+
+        <!-- 메시지 목록 -->
+        <div id="chat-messages" hidden class="space-y-3 pb-2"></div>
+      </div>
+
+      <!-- 타이핑 인디케이터 -->
+      <div id="typing-indicator" hidden class="px-4 pb-2 flex-shrink-0">
+        <div class="inline-flex items-center gap-1
+                    bg-gray-100 rounded-2xl rounded-bl-sm px-3 py-2.5">
+          <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce dot-1"></span>
+          <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce dot-2"></span>
+          <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce dot-3"></span>
+        </div>
+      </div>
+
+      <!-- 세션 요약 -->
+      <div id="session-summary" hidden
+           class="mx-4 mb-3 bg-teal-50 border border-teal-100
+                  rounded-2xl px-4 py-3 flex-shrink-0">
+        <p class="text-xs text-teal-600 font-semibold mb-1">오늘의 대화 정리 🌿</p>
+        <p id="summary-text" class="text-gray-700 text-sm leading-snug"></p>
+      </div>
+
+      <!-- 입력 영역: outer에 hidden만, inner에 flex (hidden + flex 충돌 방지) -->
+      <div id="chat-input-area" hidden
+           class="border-t border-gray-100 flex-shrink-0">
+        <div class="flex gap-2 px-4 py-3">
+        <textarea id="chat-input"
+                  placeholder="마음을 편하게 적어보세요..."
+                  rows="1"
+                  class="flex-1 resize-none rounded-xl border border-gray-200
+                         px-3 py-2.5 text-sm leading-snug
+                         focus:outline-none focus:border-teal-400
+                         focus:ring-1 focus:ring-teal-400
+                         transition-colors"
+                  aria-label="코치에게 메시지 입력"></textarea>
+        <button id="chat-send"
+                class="bg-teal-600 hover:bg-teal-700 active:scale-95
+                       text-white rounded-xl px-4 font-semibold text-sm
+                       self-end py-2.5 transition-all duration-150
+                       focus-visible:outline-none focus-visible:ring-2
+                       focus-visible:ring-teal-500 focus-visible:ring-offset-2
+                       disabled:opacity-40 disabled:cursor-not-allowed"
+                aria-label="전송">
+          전송
+        </button>
+        </div><!-- /inner flex wrapper -->
+      </div>
+
+    </div>
+  </div>
+
+  <script type="module" src="/src/app.js"></script>
+  <script type="module" src="/src/coach.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () =>
+        navigator.serviceWorker.register('/service-worker.js').catch(() => {})
+      );
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# DB & uploads
+backend/vanaly.db
+backend/uploads/
+
+# Env
+.env
+.env.*
+
+# OS
+.DS_Store
+
+# Editor
+.vscode/
